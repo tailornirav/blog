@@ -16,10 +16,9 @@ const images = readdirSync(publicDir).filter(file =>
 <html lang="en">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<!-- Cache header for long-term caching of assets -->
 		<meta http-equiv="Cache-Control" content="public, max-age=31536000" />
 		<style>
-			/* Gallery grid styling with masonry-like layout and hover zoom */
+			/* Gallery styling */
 			.gallery {
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -41,50 +40,33 @@ const images = readdirSync(publicDir).filter(file =>
 				text-align: center;
 				margin-top: 1rem;
 			}
-			/* Modal styling - fixed between header and footer */
+			/* Simple modal styling */
 			.modal {
 				display: none;
 				position: fixed;
-				/* Adjust these values to match your header and footer heights */
-				top: 70px;
-				bottom: 70px;
+				top: 0;
 				left: 0;
-				right: 0;
-				background-color: rgba(0, 0, 0, 0.8);
-				overflow-y: auto;
-				z-index: 1000;
-				padding: 1rem;
-			}
-			.modal-content {
-				margin: auto;
-				max-width: 90%;
-				max-height: 100%;
-				text-align: center;
-				position: relative;
-			}
-			.modal-content img {
 				width: 100%;
-				height: auto;
-				display: block;
-				border-radius: 8px;
-				transition: transform 0.3s ease;
-				cursor: pointer;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.9);
+				z-index: 1000;
+				overflow: auto;
+				text-align: center;
+				padding-top: 2rem;
+			}
+			.modal img {
+				max-width: 90%;
+				max-height: 90%;
+				border-radius: 4px;
 			}
 			.close {
 				position: absolute;
-				top: -10px;
-				right: -10px;
-				font-size: 30px;
+				top: 1rem;
+				right: 1rem;
 				color: #fff;
+				font-size: 2rem;
 				cursor: pointer;
 				user-select: none;
-				background: rgba(0, 0, 0, 0.5);
-				border-radius: 50%;
-				width: 40px;
-				height: 40px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
 			}
 		</style>
 	</head>
@@ -93,46 +75,30 @@ const images = readdirSync(publicDir).filter(file =>
 		<main>
 			<h1>Image Gallery</h1>
 			<div class="gallery">
-				{images.map((image) => (
+				{images.map(image => (
 					<img src={`/${image}`} alt="Gallery image" loading="lazy" onclick={`openModal('/${image}')`} />
 				))}
 			</div>
 			<!-- Modal -->
 			<div id="modal" class="modal">
-				<div class="modal-content">
-					<span id="closeModal" class="close">&times;</span>
-					<img id="modalImg" src="" alt="Full-size image" />
-				</div>
+				<span id="closeModal" class="close">&times;</span>
+				<img id="modalImage" src="" alt="Full-size image" />
 			</div>
 			<script>
-				// Expose openModal globally so inline onclick works
-				window.openModal = function(src) {
+				function openModal(src) {
 					const modal = document.getElementById("modal");
-					const modalImg = document.getElementById("modalImg");
+					const modalImage = document.getElementById("modalImage");
+					modalImage.src = src;
 					modal.style.display = "block";
-					modalImg.src = src;
-					modalImg.style.transform = "scale(1)";
-					window.zoomed = false;
 				}
 				document.getElementById("closeModal").addEventListener("click", function() {
 					document.getElementById("modal").style.display = "none";
 				});
-				// Close modal when clicking outside modal-content
+				// Optional: Close modal if clicking outside the image
 				document.getElementById("modal").addEventListener("click", function(e) {
 					if (e.target === this) {
 						this.style.display = "none";
 					}
-				});
-				// Toggle zoom on click for modal image
-				document.getElementById("modalImg").addEventListener("click", function(e) {
-					if (!window.zoomed) {
-						this.style.transform = "scale(1.5)";
-						window.zoomed = true;
-					} else {
-						this.style.transform = "scale(1)";
-						window.zoomed = false;
-					}
-					e.stopPropagation();
 				});
 			</script>
 		</main>
