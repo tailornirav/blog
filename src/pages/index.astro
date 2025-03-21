@@ -19,7 +19,7 @@ const images = readdirSync(publicDir).filter(file =>
 		<!-- Cache header for long-term caching of assets -->
 		<meta http-equiv="Cache-Control" content="public, max-age=31536000" />
 		<style>
-			/* Gallery grid styling */
+			/* Gallery grid styling with masonry-like layout and hover zoom */
 			.gallery {
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -41,30 +41,26 @@ const images = readdirSync(publicDir).filter(file =>
 				text-align: center;
 				margin-top: 1rem;
 			}
-			/* Make main relative so modal is confined between header and footer */
-			main {
-				position: relative;
-			}
-			/* Modal styling */
+			/* Modal styling - fixed between header and footer */
 			.modal {
 				display: none;
-				position: absolute;
-				top: 0;
+				position: fixed;
+				/* Adjust these values to match your header and footer heights */
+				top: 70px;
+				bottom: 70px;
 				left: 0;
-				width: 100%;
-				height: 100%;
+				right: 0;
 				background-color: rgba(0, 0, 0, 0.8);
-				justify-content: center;
-				align-items: center;
-				z-index: 10;
-				flex-direction: column;
+				overflow-y: auto;
+				z-index: 1000;
 				padding: 1rem;
 			}
 			.modal-content {
-				position: relative;
+				margin: auto;
 				max-width: 90%;
-				max-height: 90%;
+				max-height: 100%;
 				text-align: center;
+				position: relative;
 			}
 			.modal-content img {
 				width: 100%;
@@ -113,7 +109,7 @@ const images = readdirSync(publicDir).filter(file =>
 				window.openModal = function(src) {
 					const modal = document.getElementById("modal");
 					const modalImg = document.getElementById("modalImg");
-					modal.style.display = "flex";
+					modal.style.display = "block";
 					modalImg.src = src;
 					modalImg.style.transform = "scale(1)";
 					window.zoomed = false;
@@ -136,7 +132,6 @@ const images = readdirSync(publicDir).filter(file =>
 						this.style.transform = "scale(1)";
 						window.zoomed = false;
 					}
-					// Prevent the click from closing the modal
 					e.stopPropagation();
 				});
 			</script>
