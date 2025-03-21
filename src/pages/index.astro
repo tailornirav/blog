@@ -7,7 +7,7 @@ import { readdirSync } from 'fs';
 
 // Read all files in the /public folder and filter for .jpeg or .jpg images
 const publicDir = './public';
-const images = readdirSync(publicDir).filter(file => 
+const images = readdirSync(publicDir).filter(file =>
   file.toLowerCase().endsWith('.jpeg') || file.toLowerCase().endsWith('.jpg')
 );
 ---
@@ -19,10 +19,10 @@ const images = readdirSync(publicDir).filter(file =>
 		<!-- Cache header for long-term caching of assets -->
 		<meta http-equiv="Cache-Control" content="public, max-age=31536000" />
 		<style>
-			/* Base styling for the gallery */
+			/* Gallery grid styling */
 			.gallery {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 				gap: 1rem;
 				padding: 1rem;
 			}
@@ -32,20 +32,20 @@ const images = readdirSync(publicDir).filter(file =>
 				object-fit: cover;
 				border-radius: 8px;
 				cursor: pointer;
+				transition: transform 0.3s ease;
 			}
-			@media (max-width: 720px) {
-				.gallery {
-					grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-				}
+			.gallery img:hover {
+				transform: scale(1.05);
 			}
 			main h1 {
 				text-align: center;
 				margin-top: 1rem;
 			}
-			/* Modal styling */
+			/* Make main relative so modal is confined between header and footer */
 			main {
 				position: relative;
 			}
+			/* Modal styling */
 			.modal {
 				display: none;
 				position: absolute;
@@ -57,26 +57,52 @@ const images = readdirSync(publicDir).filter(file =>
 				justify-content: center;
 				align-items: center;
 				z-index: 10;
+				flex-direction: column;
+				padding: 1rem;
 			}
 			.modal-content {
 				position: relative;
 				max-width: 90%;
 				max-height: 90%;
+				text-align: center;
 			}
 			.modal-content img {
 				width: 100%;
 				height: auto;
 				display: block;
 				border-radius: 8px;
+				transition: transform 0.3s ease;
 			}
 			.close {
 				position: absolute;
-				top: 10px;
-				right: 20px;
+				top: -10px;
+				right: -10px;
 				font-size: 30px;
 				color: #fff;
 				cursor: pointer;
 				user-select: none;
+				background: rgba(0, 0, 0, 0.5);
+				border-radius: 50%;
+				width: 40px;
+				height: 40px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.modal-controls {
+				margin-top: 1rem;
+			}
+			.modal-controls button {
+				background-color: #fff;
+				border: none;
+				padding: 0.5em 1em;
+				margin: 0 0.5em;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 1em;
+			}
+			.modal-controls button:hover {
+				background-color: #f0f0f0;
 			}
 		</style>
 	</head>
@@ -86,7 +112,7 @@ const images = readdirSync(publicDir).filter(file =>
 			<h1>Image Gallery</h1>
 			<div class="gallery">
 				{images.map((image) => (
-					<img src={`/${image}`} alt="Gallery image" loading="lazy" onClick={`openModal('${'/' + image}')`} />
+					<img src={`/${image}`} alt="Gallery image" loading="lazy" onclick={`openModal('/${image}')`} />
 				))}
 			</div>
 			<!-- Modal -->
@@ -94,23 +120,49 @@ const images = readdirSync(publicDir).filter(file =>
 				<div class="modal-content">
 					<span id="closeModal" class="close">&times;</span>
 					<img id="modalImg" src="" alt="Full-size image" />
+					<div class="modal-controls">
+						<button id="zoomIn">Zoom In</button>
+						<button id="zoomOut">Zoom Out</button>
+						<button id="resetZoom">Reset Zoom</button>
+					</div>
 				</div>
 			</div>
 			<script>
-				function openModal(src) {
+				// Expose openModal globally so that inline onclick works
+				window.openModal = function(src) {
 					const modal = document.getElementById("modal");
 					const modalImg = document.getElementById("modalImg");
 					modal.style.display = "flex";
 					modalImg.src = src;
+					modalImg.style.transform = "scale(1)";
+					window.zoomLevel = 1;
 				}
-				document.getElementById("closeModal").addEventListener("click", function() {
+				document.getElementById("closeModal").addEventListener("click", function(e) {
 					document.getElementById("modal").style.display = "none";
 				});
-				// Close modal when clicking outside the modal content
-				document.getElementById("modal").addEventListener("click", function(event) {
-					if (event.target === this) {
+				// Close modal when clicking outside modal-content
+				document.getElementById("modal").addEventListener("click", function(e) {
+					if (e.target === this) {
 						this.style.display = "none";
 					}
+				});
+				document.getElementById("zoomIn").addEventListener("click", function(e) {
+					e.stopPropagation();
+					const modalImg = document.getElementById("modalImg");
+					window.zoomLevel = (window.zoomLevel || 1) * 1.25;
+					modalImg.style.transform = `scale(${window.zoomLevel})`;
+				});
+				document.getElementById("zoomOut").addEventListener("click", function(e) {
+					e.stopPropagation();
+					const modalImg = document.getElementById("modalImg");
+					window.zoomLevel = (window.zoomLevel || 1) / 1.25;
+					modalImg.style.transform = `scale(${window.zoomLevel})`;
+				});
+				document.getElementById("resetZoom").addEventListener("click", function(e) {
+					e.stopPropagation();
+					const modalImg = document.getElementById("modalImg");
+					window.zoomLevel = 1;
+					modalImg.style.transform = "scale(1)";
 				});
 			</script>
 		</main>
