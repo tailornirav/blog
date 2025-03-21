@@ -5,9 +5,10 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { readdirSync } from 'fs';
 
-// Read all files in the /public folder and filter for .jpeg images
+// Read all files in the /public folder and filter for .jpeg or .jpg images
 const publicDir = './public';
-const images = readdirSync(publicDir).filter(file.toLowerCase().endsWith('.jpeg') || file.toLowerCase().endsWith('.jpg')
+const images = readdirSync(publicDir).filter(file => 
+  file.toLowerCase().endsWith('.jpeg') || file.toLowerCase().endsWith('.jpg')
 );
 ---
 
