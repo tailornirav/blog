@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { readdirSync } from 'fs';
 
-// Read all files in the /public folder and filter for .jpeg or .jpg images
+// Get all images (jpeg and jpg) from /public folder
 const publicDir = './public';
 const images = readdirSync(publicDir).filter(file =>
   file.toLowerCase().endsWith('.jpeg') || file.toLowerCase().endsWith('.jpg')
@@ -18,86 +18,105 @@ const images = readdirSync(publicDir).filter(file =>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<meta http-equiv="Cache-Control" content="public, max-age=31536000" />
 		<style>
-			/* Gallery styling */
+			/* Basic reset and body styling */
+			body {
+				margin: 0;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+				background: #ffffff;
+				color: #333;
+			}
+			/* Gallery grid similar to Unsplash */
 			.gallery {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-				gap: 1rem;
-				padding: 1rem;
+				grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+				gap: 16px;
+				padding: 16px;
 			}
 			.gallery img {
 				width: 100%;
-				height: auto;
-				object-fit: cover;
+				display: block;
 				border-radius: 8px;
 				cursor: pointer;
 				transition: transform 0.3s ease;
 			}
 			.gallery img:hover {
-				transform: scale(1.05);
+				transform: scale(1.02);
 			}
-			main h1 {
-				text-align: center;
-				margin-top: 1rem;
-			}
-			/* Simple modal styling */
+			/* Modal styling similar to Unsplash */
 			.modal {
 				display: none;
 				position: fixed;
 				top: 0;
 				left: 0;
-				width: 100%;
-				height: 100%;
-				background: rgba(0, 0, 0, 0.9);
-				z-index: 1000;
-				overflow: auto;
-				text-align: center;
-				padding-top: 2rem;
+				right: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.95);
+				justify-content: center;
+				align-items: center;
+				z-index: 9999;
+				padding: 16px;
 			}
-			.modal img {
+			.modal-content {
+				position: relative;
 				max-width: 90%;
 				max-height: 90%;
+			}
+			.modal-content img {
+				width: 100%;
+				height: auto;
 				border-radius: 4px;
 			}
-			.close {
+			.modal-close {
 				position: absolute;
-				top: 1rem;
-				right: 1rem;
+				top: 8px;
+				right: 8px;
 				color: #fff;
-				font-size: 2rem;
+				font-size: 32px;
+				font-weight: bold;
 				cursor: pointer;
 				user-select: none;
+			}
+			@media (max-width: 600px) {
+				.gallery {
+					grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+					padding: 8px;
+					gap: 8px;
+				}
 			}
 		</style>
 	</head>
 	<body>
 		<Header />
 		<main>
-			<h1>Image Gallery</h1>
 			<div class="gallery">
 				{images.map(image => (
 					<img src={`/${image}`} alt="Gallery image" loading="lazy" onclick={`openModal('/${image}')`} />
 				))}
 			</div>
-			<!-- Modal -->
+			<!-- Simple modal with a close button -->
 			<div id="modal" class="modal">
-				<span id="closeModal" class="close">&times;</span>
-				<img id="modalImage" src="" alt="Full-size image" />
+				<div class="modal-content">
+					<span id="modalClose" class="modal-close">&times;</span>
+					<img id="modalImage" src="" alt="Full-size image" />
+				</div>
 			</div>
 			<script>
 				function openModal(src) {
 					const modal = document.getElementById("modal");
 					const modalImage = document.getElementById("modalImage");
 					modalImage.src = src;
-					modal.style.display = "block";
+					modal.style.display = "flex";
+					document.body.style.overflow = "hidden"; // disable background scroll
 				}
-				document.getElementById("closeModal").addEventListener("click", function() {
+				document.getElementById("modalClose").addEventListener("click", function() {
 					document.getElementById("modal").style.display = "none";
+					document.body.style.overflow = "auto";
 				});
-				// Optional: Close modal if clicking outside the image
+				// Close modal when clicking outside the modal content
 				document.getElementById("modal").addEventListener("click", function(e) {
 					if (e.target === this) {
 						this.style.display = "none";
+						document.body.style.overflow = "auto";
 					}
 				});
 			</script>
