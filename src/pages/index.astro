@@ -19,7 +19,7 @@ const images = readdirSync(publicDir).filter(file =>
 		<!-- Cache header for long-term caching of assets -->
 		<meta http-equiv="Cache-Control" content="public, max-age=31536000" />
 		<style>
-			/* Responsive image gallery styling */
+			/* Base styling for the gallery */
 			.gallery {
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -31,6 +31,7 @@ const images = readdirSync(publicDir).filter(file =>
 				height: auto;
 				object-fit: cover;
 				border-radius: 8px;
+				cursor: pointer;
 			}
 			@media (max-width: 720px) {
 				.gallery {
@@ -41,6 +42,42 @@ const images = readdirSync(publicDir).filter(file =>
 				text-align: center;
 				margin-top: 1rem;
 			}
+			/* Modal styling */
+			main {
+				position: relative;
+			}
+			.modal {
+				display: none;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.8);
+				justify-content: center;
+				align-items: center;
+				z-index: 10;
+			}
+			.modal-content {
+				position: relative;
+				max-width: 90%;
+				max-height: 90%;
+			}
+			.modal-content img {
+				width: 100%;
+				height: auto;
+				display: block;
+				border-radius: 8px;
+			}
+			.close {
+				position: absolute;
+				top: 10px;
+				right: 20px;
+				font-size: 30px;
+				color: #fff;
+				cursor: pointer;
+				user-select: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -49,9 +86,33 @@ const images = readdirSync(publicDir).filter(file =>
 			<h1>Image Gallery</h1>
 			<div class="gallery">
 				{images.map((image) => (
-					<img src={`/${image}`} alt="Gallery image" loading="lazy" />
+					<img src={`/${image}`} alt="Gallery image" loading="lazy" onClick={`openModal('${'/' + image}')`} />
 				))}
 			</div>
+			<!-- Modal -->
+			<div id="modal" class="modal">
+				<div class="modal-content">
+					<span id="closeModal" class="close">&times;</span>
+					<img id="modalImg" src="" alt="Full-size image" />
+				</div>
+			</div>
+			<script>
+				function openModal(src) {
+					const modal = document.getElementById("modal");
+					const modalImg = document.getElementById("modalImg");
+					modal.style.display = "flex";
+					modalImg.src = src;
+				}
+				document.getElementById("closeModal").addEventListener("click", function() {
+					document.getElementById("modal").style.display = "none";
+				});
+				// Close modal when clicking outside the modal content
+				document.getElementById("modal").addEventListener("click", function(event) {
+					if (event.target === this) {
+						this.style.display = "none";
+					}
+				});
+			</script>
 		</main>
 		<Footer />
 	</body>
