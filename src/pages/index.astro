@@ -72,6 +72,7 @@ const images = readdirSync(publicDir).filter(file =>
 				display: block;
 				border-radius: 8px;
 				transition: transform 0.3s ease;
+				cursor: pointer;
 			}
 			.close {
 				position: absolute;
@@ -89,21 +90,6 @@ const images = readdirSync(publicDir).filter(file =>
 				align-items: center;
 				justify-content: center;
 			}
-			.modal-controls {
-				margin-top: 1rem;
-			}
-			.modal-controls button {
-				background-color: #fff;
-				border: none;
-				padding: 0.5em 1em;
-				margin: 0 0.5em;
-				border-radius: 4px;
-				cursor: pointer;
-				font-size: 1em;
-			}
-			.modal-controls button:hover {
-				background-color: #f0f0f0;
-			}
 		</style>
 	</head>
 	<body>
@@ -120,24 +106,19 @@ const images = readdirSync(publicDir).filter(file =>
 				<div class="modal-content">
 					<span id="closeModal" class="close">&times;</span>
 					<img id="modalImg" src="" alt="Full-size image" />
-					<div class="modal-controls">
-						<button id="zoomIn">Zoom In</button>
-						<button id="zoomOut">Zoom Out</button>
-						<button id="resetZoom">Reset Zoom</button>
-					</div>
 				</div>
 			</div>
 			<script>
-				// Expose openModal globally so that inline onclick works
+				// Expose openModal globally so inline onclick works
 				window.openModal = function(src) {
 					const modal = document.getElementById("modal");
 					const modalImg = document.getElementById("modalImg");
 					modal.style.display = "flex";
 					modalImg.src = src;
 					modalImg.style.transform = "scale(1)";
-					window.zoomLevel = 1;
+					window.zoomed = false;
 				}
-				document.getElementById("closeModal").addEventListener("click", function(e) {
+				document.getElementById("closeModal").addEventListener("click", function() {
 					document.getElementById("modal").style.display = "none";
 				});
 				// Close modal when clicking outside modal-content
@@ -146,23 +127,17 @@ const images = readdirSync(publicDir).filter(file =>
 						this.style.display = "none";
 					}
 				});
-				document.getElementById("zoomIn").addEventListener("click", function(e) {
+				// Toggle zoom on click for modal image
+				document.getElementById("modalImg").addEventListener("click", function(e) {
+					if (!window.zoomed) {
+						this.style.transform = "scale(1.5)";
+						window.zoomed = true;
+					} else {
+						this.style.transform = "scale(1)";
+						window.zoomed = false;
+					}
+					// Prevent the click from closing the modal
 					e.stopPropagation();
-					const modalImg = document.getElementById("modalImg");
-					window.zoomLevel = (window.zoomLevel || 1) * 1.25;
-					modalImg.style.transform = `scale(${window.zoomLevel})`;
-				});
-				document.getElementById("zoomOut").addEventListener("click", function(e) {
-					e.stopPropagation();
-					const modalImg = document.getElementById("modalImg");
-					window.zoomLevel = (window.zoomLevel || 1) / 1.25;
-					modalImg.style.transform = `scale(${window.zoomLevel})`;
-				});
-				document.getElementById("resetZoom").addEventListener("click", function(e) {
-					e.stopPropagation();
-					const modalImg = document.getElementById("modalImg");
-					window.zoomLevel = 1;
-					modalImg.style.transform = "scale(1)";
 				});
 			</script>
 		</main>
